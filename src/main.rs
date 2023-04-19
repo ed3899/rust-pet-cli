@@ -302,6 +302,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
                 }
+                KeyCode::Up => {
+                    if let Some(selected) = pet_list_state.selected() {
+                        let amount_pets = read_db().expect("can fetch pet list").len() - 1;
+                        if selected > 0 {
+                            // Go up
+                            pet_list_state.select(Some(selected - 1));
+                        } else {
+                            // Cycle back to the bottom
+                            pet_list_state.select(Some(amount_pets));
+                        }
+                    }
+                }
                 _ => {
                     break;
                 }
