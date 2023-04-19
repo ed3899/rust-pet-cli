@@ -123,5 +123,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
 
-    
+    loop {
+        terminal.draw(|rect| {
+            let size = rect.size();
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(2)
+                .constraints(
+                    [
+                        Constraint::Length(3),
+                        Constraint::Min(2),
+                        Constraint::Length(3),
+                    ]
+                    .as_ref(),
+                )
+                .split(size);
+
+            match active_menu_item {
+                MenuItem::Home => rect.render_widget(render_home(), chunks[1]),
+                MenuItem::Pets => {}
+            }
+        })?;
+
+        match rx.recv()? {
+            Event::Input(event) => match event.code {
+                KeyCode::Char('q') => {
+                    disable_raw_mode()?;
+                    terminal.show_cursor()?;
+                    break;
+                }
+                _ => {
+                    break;
+                }
+            },
+            Event::Tick => {}
+        }
+    }
+
+    Ok(())
 }
