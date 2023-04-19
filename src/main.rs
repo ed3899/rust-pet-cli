@@ -197,6 +197,23 @@ fn add_random_pet_to_db() -> Result<Vec<Pet>, Error> {
     Ok(parsed)
 }
 
+fn remove_pet_at_index(pet_list_state: &mut ListState) -> Result<(), Error> {
+    if let Some(selected) = pet_list_state.selected() {
+        let db_content = fs::read_to_string(DB_PATH)?;
+        let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+        parsed.remove(selected);
+        fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
+
+        if selected > 0 {
+            pet_list_state.select(Some(selected - 1));
+        } else {
+            pet_list_state.select(Some(0));
+        }
+    }
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode().expect("can run in raw mode");
 
@@ -315,6 +332,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 KeyCode::Char('p') => active_menu_item = MenuItem::Pets,
                 KeyCode::Char('a') => {
                     add_random_pet_to_db().expect("can remove pet");
+                },
+                KeyCode::Char('d') => {
+                    remove_pet_at_index(&mut pet_list_state).expect("can remove pet");
                 }
                 KeyCode::Down => {
                     if let Some(selected) = pet_list_state.selected() {
