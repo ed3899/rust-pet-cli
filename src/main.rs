@@ -290,6 +290,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     break;
                 }
                 KeyCode::Char('p') => active_menu_item = MenuItem::Pets,
+                KeyCode::Down => {
+                    if let Some(selected) = pet_list_state.selected() {
+                        let amount_pets = read_db().expect("can fetch pet list").len() - 1;
+                        if selected >= amount_pets {
+                            // Cycle back to the top
+                            pet_list_state.select(Some(0));
+                        } else {
+                            // Go down
+                            pet_list_state.select(Some(selected + 1))
+                        }
+                    }
+                }
                 _ => {
                     break;
                 }
